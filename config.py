@@ -1,0 +1,1 @@
+token = '7191063636:AAEggHl_VAdvShTLib5tEWjvuLhnPtCxxkk' # API токен бота

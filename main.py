@@ -4,6 +4,7 @@ from telebot import types
 import config
 from db import DB
 import buttons as keyboards
+import step_handlers
 
 # INIT
 db = DB('db.db')
@@ -12,6 +13,7 @@ bot = telebot.TeleBot(config.token)
 # Обработка команды /start
 @bot.message_handler(commands = ['start'])
 def law(message):
+    bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
     user = db.get_user(message.chat.id)
 
     # Проверка на наличие бана
@@ -40,7 +42,8 @@ def law(message):
             bot.send_message(message.chat.id, 'Привет, ' + message.chat.first_name + ', скоро я дам о себе знать...') 
 
     # Обнуляем состояние.
-    db.set_status(message.chat.id, '0')
+    db.set_status(message.chat.id, '0') 
+    # мейби убирать
 
 @bot.message_handler(content_types = ['text'])
 def law(message):
@@ -55,6 +58,7 @@ def law(message):
 @bot.callback_query_handler(func = lambda call: True)
 def callback_inline(call):
     user = db.get_user(call.message.chat.id)
+    bot.clear_step_handler_by_chat_id(chat_id=call.message.chat.id)
 
     # Проверка на наличие бана
     if(user[4]): return
@@ -66,25 +70,28 @@ def callback_inline(call):
         bot.edit_message_text(chat_id = call.message.chat.id, message_id = call.message.message_id, text = 'Привет, ' + call.message.chat.first_name + ', что ты хочешь сделать?', reply_markup = keyboards.admin_keyboard)
         db.set_status(call.message.chat.id, '0')
 
-    # Меню выбора фильтра по жанру.
+    # Меню редактирования каналов.
     elif call.data == 'edit_channels':
         bot.edit_message_text(chat_id = call.message.chat.id, message_id = call.message.message_id, text = 'Что будем делать?', reply_markup = keyboards.channel_edit_keyboard)
     
+    # Выбирают добавить канал.
     elif call.data == 'add_channel':
         bot.edit_message_text(chat_id = call.message.chat.id, message_id = call.message.message_id, text = 'Какие каналы необходимо добавить?', reply_markup = keyboards.channel_add_keyboard)
 
+    # Выбирают тип канала.
     elif call.data == 'necessary' or call.data == 'closed':
         msg = bot.edit_message_text(chat_id = call.message.chat.id, message_id = call.message.message_id, text = 'Пришли id обязательного/закрытого канала и Название кнопки в следующем формате:\n\nID | Название кнопки', reply_markup = keyboards.cancel_keyboard)
-        if call.data == 'necessary': bot.register_next_step_handler(msg, add_necessary_step)
-        elif call.data == 'closed': bot.register_next_step_handler(msg, add_closed_step)
+        bot.register_next_step_handler(msg, step_handlers.add_chan_step, call.data, msg)
+
+    # Подтвердили добавление канала
+    elif 'done_channel:' in call.data:
+        data = call.data.split(':')
+
+        
 
 
-# Обработчики некст степов
-def add_necessary_step(message):
-    bot.send_message(message.chat.id, 'Обязательный')
 
-def add_closed_step(message):
-    bot.send_message(message.chat.id, 'Закрытый')
+
     
    
 

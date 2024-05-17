@@ -32,3 +32,9 @@ channel_add_keyboard = types.InlineKeyboardMarkup(row_width=2).add(b1, b2, b3, b
 # Отмена
 b1 = types.InlineKeyboardButton('Отмена', callback_data = 'admin_panel')
 cancel_keyboard = types.InlineKeyboardMarkup(row_width=2).add(b1)
+
+# Подтверждение добавления канала
+def form_add_chan_confirm(callback, ch_type):
+    b1 = types.InlineKeyboardButton('Подтвердить', callback_data = callback)
+    b2 = types.InlineKeyboardButton('Отмена', callback_data = ch_type)
+    return types.InlineKeyboardMarkup(row_width=1).add(b1, b2)

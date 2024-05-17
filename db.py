@@ -56,4 +56,10 @@ class DB:
 			with lock:
 				return self.cursor.execute("SELECT * FROM `channels`").fetchall()
 			
+	def add_chan(self, id, name, ch_type):
+		# Добавление пользователя в БД.
+		with self.connection:
+			with lock:
+				return self.cursor.execute("INSERT INTO `chans` (`id`, `name`, `type`) VALUES(?,?,?)", (id, name, ch_type,))
+			
 	

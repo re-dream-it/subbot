@@ -53,11 +53,6 @@ def law(message):
     if message.text == 'testit':
         while True:
             bot.send_message(message.chat.id, 'Список каналов')
-        
-    if message.text == 'answer':
-        
-        bot.send_message(message.chat.id, 'ААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА')
-    
 
     # Проверка на наличие бана
     if(user[4]): return
